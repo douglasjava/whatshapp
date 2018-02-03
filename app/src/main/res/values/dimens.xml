@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="larguraLogo">200dp</dimen>
+    <dimen name="alturalogo">163dp</dimen>
+    <dimen name="size_titulo_validacao">25sp</dimen>
+    <dimen name="size_info_validacao">15sp</dimen>
+</resources>
