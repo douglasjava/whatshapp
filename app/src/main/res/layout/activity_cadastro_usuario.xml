@@ -8,16 +8,7 @@
     android:padding="20dp"
     android:gravity="center_horizontal"
     android:layout_gravity="center_vertical"
-    tools:context="br.com.firebase.whatsapp.activity.LoginActivity">
-
-    <ProgressBar
-        android:id="@+id/progressLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="155dp"
-        android:layout_marginHorizontal="150dp"
-        android:visibility="gone"/>
-
+    tools:context="br.com.firebase.whatsapp.activity.CadastroUsuarioActivity">
 
     <ImageView
         android:id="@+id/imageLogo"
@@ -25,52 +16,51 @@
         android:layout_height="@dimen/alturalogo"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/logo"
+        android:src="@drawable/usuario"
         android:textAlignment="center" />
 
     <EditText
-        android:id="@+id/edtEmail"
+        android:id="@+id/edtCadastroNome"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/imageLogo"
         android:layout_marginTop="24dp"
+        android:hint="@string/label_nome"
+        android:inputType="none"
+        android:textColor="@color/textColorPrimary" />
+
+    <EditText
+        android:id="@+id/edtCadastroEmail"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/edtCadastroNome"
+        android:layout_marginTop="20dp"
         android:hint="@string/label_login"
         android:inputType="none"
         android:textColor="@color/textColorPrimary" />
 
     <EditText
-        android:id="@+id/edtSenha"
+        android:id="@+id/edtCadastroSenha"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edtEmail"
-        android:ems="10"
+        android:layout_below="@id/edtCadastroEmail"
+        android:layout_marginTop="20dp"
         android:hint="@string/label_senha"
         android:inputType="textPassword"
         android:textColor="@color/textColorPrimary"/>
 
     <Button
-        android:id="@+id/btnlogar"
+        android:id="@+id/btnCadastrar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/edtSenha"
+        android:layout_below="@+id/edtCadastroSenha"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="28dp"
         android:background="@color/colorPrimaryDark"
-        android:text="@string/btn_logar" />
-
-
-    <TextView
-        android:id="@+id/txtCadastro"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btnlogar"
-        android:layout_marginTop="15dp"
-        android:textColor="@color/textColorPrimary"
-        android:text="@string/texto_cadastro"
-        android:gravity="center"
-        android:onClick="abrirCadastroUsuario"
-        tools:ignore="OnClick" />
+        android:text="@string/btn_cadastrar" />
 
 </RelativeLayout>
