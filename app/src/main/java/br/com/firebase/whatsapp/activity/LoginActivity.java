@@ -37,7 +37,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button logar;
     private Usuario usuario;
     private FirebaseAuth auth;
-    private View progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,17 +63,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.btnlogar:
                 try {
-
-                    progressDialog = findViewById(R.id.progressLogin);
-                    progressDialog.setVisibility(View.VISIBLE);
-
+                    //TODO criar AsyncTask para logar
                     verificarConexao(context());
                     validarCampoPreenchido(textView(email), textView(senha));
                     usuario = new Usuario(textView(email), textView(senha));
                     validarLogin();
-
-                    progressDialog.setVisibility(View.GONE);
-
                 } catch (CampoVazioException e) {
                     Toast.makeText(context(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 } catch (ValidarUsuarioException e) {

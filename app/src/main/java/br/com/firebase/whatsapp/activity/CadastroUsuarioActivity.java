@@ -1,6 +1,7 @@
 package br.com.firebase.whatsapp.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +22,10 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import br.com.firebase.whatsapp.R;
 import br.com.firebase.whatsapp.beans.Usuario;
 import br.com.firebase.whatsapp.exceptions.CampoVazioException;
+import br.com.firebase.whatsapp.utils.Convert64Base;
 
 import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getAutenticacao;
+import static br.com.firebase.whatsapp.utils.Convert64Base.encode;
 import static br.com.firebase.whatsapp.utils.Utils.textView;
 import static br.com.firebase.whatsapp.utils.Utils.validarCampoPreenchido;
 
@@ -73,7 +76,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity implements View.O
                             salvarUsuario(task);
                             Toast.makeText(getContext(), "Sucesso ao cadastrar usuário", Toast.LENGTH_LONG).show();
 
-                            auth.signOut(); /** logout **/
+                            openWindowMain();
                             finish();
 
                         } else {
@@ -81,6 +84,10 @@ public class CadastroUsuarioActivity extends AppCompatActivity implements View.O
                         }
                     }
                 });
+    }
+
+    private void openWindowMain() {
+        startActivity(new Intent(CadastroUsuarioActivity.this, MainActivity.class));
     }
 
     private void tratamentoExcecaoCreate(Task<AuthResult> task) {
@@ -107,7 +114,8 @@ public class CadastroUsuarioActivity extends AppCompatActivity implements View.O
     }
 
     public void salvarUsuario(Task<AuthResult> task) {
-        usuario.setId(task.getResult().getUser().getUid());
+        String idUsuario = encode(usuario.getEmail());
+        usuario.setId(idUsuario);
         usuario.salvar();
     }
 }

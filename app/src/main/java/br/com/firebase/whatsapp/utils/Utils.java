@@ -33,6 +33,7 @@ public class Utils {
         editText.addTextChangedListener(mtw);
     }
 
+
     public static String textView(EditText editText) {
         return editText.getText().toString();
     }

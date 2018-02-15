@@ -11,4 +11,13 @@
     <string name="btn_cadastrar">Cadastrar</string>
     <string name="title_activity_cadastro_usuario">CadastroUsuarioActivity</string>
     <string name="texto_cadastro">Não tem conta? Cadastre-se</string>
+
+    <string name="action_setting">Configuração</string>
+    <string name="action_logout">Sair</string>
+    <string name="action_pesquisa">Pesquisar</string>
+    <string name="action_adicionar">Adicionar</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="fragment_Conversa">Conversas</string>
+    <string name="fragment_Contatos">Contatos</string>
 </resources>
