@@ -3,6 +3,7 @@ package br.com.firebase.whatsapp.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,15 +19,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.database.DatabaseReference;
 
 import br.com.firebase.whatsapp.R;
 import br.com.firebase.whatsapp.beans.Usuario;
+import br.com.firebase.whatsapp.config.ConfiguracaoFirebase;
 import br.com.firebase.whatsapp.exceptions.CampoVazioException;
-import br.com.firebase.whatsapp.utils.Convert64Base;
+import br.com.firebase.whatsapp.utils.Childs;
 
 import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getAutenticacao;
+import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getFirebase;
 import static br.com.firebase.whatsapp.utils.Convert64Base.encode;
-import static br.com.firebase.whatsapp.utils.Utils.textView;
+import static br.com.firebase.whatsapp.utils.Utils.salvarUsuarioLogado;
+import static br.com.firebase.whatsapp.utils.Utils.getTextView;
 import static br.com.firebase.whatsapp.utils.Utils.validarCampoPreenchido;
 
 public class CadastroUsuarioActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,6 +42,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity implements View.O
     private Button cadastrar;
     private Usuario usuario;
     private FirebaseAuth auth;
+    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +63,8 @@ public class CadastroUsuarioActivity extends AppCompatActivity implements View.O
         switch (v.getId()) {
             case R.id.btnCadastrar:
                 try {
-                    usuario = new Usuario(textView(nome), textView(email), textView(senha));
-                    validarCampoPreenchido(textView(nome), textView(email), textView(senha));
+                    usuario = new Usuario(getTextView(nome), getTextView(email), getTextView(senha));
+                    validarCampoPreenchido(getTextView(nome), getTextView(email), getTextView(senha));
                     cadastrarUsuario();
                 } catch (CampoVazioException e) {
                     Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -75,7 +81,7 @@ public class CadastroUsuarioActivity extends AppCompatActivity implements View.O
                         if (task.isSuccessful()) {
                             salvarUsuario(task);
                             Toast.makeText(getContext(), "Sucesso ao cadastrar usuário", Toast.LENGTH_LONG).show();
-
+                            salvarUsuarioLogado(getContext(), usuario);
                             openWindowMain();
                             finish();
 

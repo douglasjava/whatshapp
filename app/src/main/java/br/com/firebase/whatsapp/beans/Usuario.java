@@ -3,7 +3,10 @@ package br.com.firebase.whatsapp.beans;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 
+import br.com.firebase.whatsapp.utils.Childs;
+
 import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getFirebase;
+import static br.com.firebase.whatsapp.utils.Childs.CHILD_USUARIOS;
 
 /**
  * Created by Dias on 09/02/2018.
@@ -30,9 +33,13 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public Usuario(String email) {
+        this.email = email;
+    }
+
     public void salvar() {
         DatabaseReference database = getFirebase();
-        database.child("usuarios").child(getId()).setValue(this);
+        database.child(CHILD_USUARIOS).child(getId()).setValue(this);
     }
 
     @Exclude

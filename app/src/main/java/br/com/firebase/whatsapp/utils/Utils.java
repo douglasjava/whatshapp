@@ -15,10 +15,12 @@ import com.github.rtoshiro.util.format.text.MaskTextWatcher;
 import java.text.DecimalFormat;
 import java.util.Random;
 
+import br.com.firebase.whatsapp.beans.Usuario;
 import br.com.firebase.whatsapp.exceptions.CampoVazioException;
 import br.com.firebase.whatsapp.exceptions.ConexaoException;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
+import static br.com.firebase.whatsapp.utils.Convert64Base.encode;
 import static br.com.firebase.whatsapp.utils.ParametrosPermission.MY_PERMISSIONS_REQUEST_SEND_SMS;
 
 /**
@@ -34,7 +36,7 @@ public class Utils {
     }
 
 
-    public static String textView(EditText editText) {
+    public static String getTextView(EditText editText) {
         return editText.getText().toString();
     }
 
@@ -46,7 +48,7 @@ public class Utils {
 
     public static void validarCampoPreenchido(String... campos) throws CampoVazioException {
         for (String campo : campos) {
-            if (campo.length() == 0 || campo == null) {
+            if (campo.isEmpty()) {
                 throw new CampoVazioException("Favor preencher todos os campos! ");
             }
         }
@@ -57,6 +59,11 @@ public class Utils {
             texto = texto.replace(t, "");
         }
         return texto;
+    }
+
+    public static void salvarUsuarioLogado(Context context, Usuario usuario) {
+        Preferencias preferencias = new Preferencias(context);
+        preferencias.salvarUsuarioLogado(encode(usuario.getEmail()), usuario.getNome());
     }
 
     public static String geraToken() {

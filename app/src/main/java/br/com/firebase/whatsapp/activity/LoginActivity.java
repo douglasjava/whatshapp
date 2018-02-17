@@ -17,15 +17,25 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import br.com.firebase.whatsapp.R;
 import br.com.firebase.whatsapp.beans.Usuario;
 import br.com.firebase.whatsapp.exceptions.CampoVazioException;
 import br.com.firebase.whatsapp.exceptions.ConexaoException;
 import br.com.firebase.whatsapp.exceptions.ValidarUsuarioException;
+import br.com.firebase.whatsapp.utils.Childs;
+import br.com.firebase.whatsapp.utils.Convert64Base;
 
 import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getAutenticacao;
-import static br.com.firebase.whatsapp.utils.Utils.textView;
+import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getFirebase;
+import static br.com.firebase.whatsapp.utils.Convert64Base.decode;
+import static br.com.firebase.whatsapp.utils.Convert64Base.encode;
+import static br.com.firebase.whatsapp.utils.Utils.salvarUsuarioLogado;
+import static br.com.firebase.whatsapp.utils.Utils.getTextView;
 import static br.com.firebase.whatsapp.utils.Utils.validaPermissoes;
 import static br.com.firebase.whatsapp.utils.Utils.validarCampoPreenchido;
 import static br.com.firebase.whatsapp.utils.Utils.verificarConexao;
@@ -37,6 +47,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button logar;
     private Usuario usuario;
     private FirebaseAuth auth;
+    private DatabaseReference database;
+    private ValueEventListener valueEventListenerLogin;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +78,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 try {
                     //TODO criar AsyncTask para logar
                     verificarConexao(context());
-                    validarCampoPreenchido(textView(email), textView(senha));
-                    usuario = new Usuario(textView(email), textView(senha));
+                    validarCampoPreenchido(getTextView(email), getTextView(senha));
+                    usuario = new Usuario(getTextView(email), getTextView(senha));
                     validarLogin();
                 } catch (CampoVazioException e) {
                     Toast.makeText(context(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -81,8 +94,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void verificarUsuarioLogado() {
         auth = getAutenticacao();
         if (auth.getCurrentUser() != null) {
+            usuario = new Usuario(auth.getCurrentUser().getEmail());
+            getNomeUsuario(encode(usuario.getEmail()));
             openWindowMain();
         }
+    }
+
+    private void getNomeUsuario(String idUsuario){
+        database = getFirebase().child(Childs.CHILD_USUARIOS).child(idUsuario);
+        database.addListenerForSingleValueEvent(getValueEventListenerLogin());
+    }
+
+    private ValueEventListener getValueEventListenerLogin(){
+       return valueEventListenerLogin = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Usuario usuario = dataSnapshot.getValue(Usuario.class);
+                salvarUsuarioLogado(context(), usuario);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 
     private void validarLogin() throws ValidarUsuarioException {
@@ -94,6 +129,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
+                                getNomeUsuario(decode(usuario.getEmail()));
                                 openWindowMain();
                                 Toast.makeText(context(), "Usuário logado com sucesso!", Toast.LENGTH_SHORT).show();
                                 finish();
@@ -134,4 +170,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void abrirCadastroUsuario(View view) {
         startActivity(new Intent(LoginActivity.this, CadastroUsuarioActivity.class));
     }
+
+
 }

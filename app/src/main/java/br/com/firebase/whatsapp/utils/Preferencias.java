@@ -15,6 +15,7 @@ public class Preferencias {
     private String CHAVE_NOME = "nome";
     private String CHAVE_TELEFONE = "telefone";
     private String CHAVE_TOKEN = "token";
+    private String CHAVE_IDENTIFICADOR = "identificadorUsuarioLogado";
 
     private Context context;
     private SharedPreferences preferences;
@@ -43,4 +44,19 @@ public class Preferencias {
 
         return dadosUsuarios;
     }
+
+    public void salvarUsuarioLogado(String identificadorUsuario, String nome){
+        editor.putString(CHAVE_IDENTIFICADOR, identificadorUsuario);
+        editor.putString(CHAVE_NOME, nome);
+        editor.commit();
+    }
+
+    public String getUsuarioLogado(){
+        return preferences.getString(CHAVE_IDENTIFICADOR, null);
+    }
+
+    public String getNomeUsuario(){
+        return preferences.getString(CHAVE_NOME, null);
+    }
+
 }
