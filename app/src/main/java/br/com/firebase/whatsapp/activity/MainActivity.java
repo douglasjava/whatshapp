@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void adicionar() {
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext())
-                .setTitle("Novo Contato")
+                .setTitle("")
                 .setCancelable(false);
 
         View viewPopup = getLayoutInflater().inflate(R.layout.fragment_adicionar_contato, null);

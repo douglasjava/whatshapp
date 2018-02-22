@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 import br.com.firebase.whatsapp.R;
@@ -37,7 +35,7 @@ public class ContatoAdapter extends ArrayAdapter<Contato> {
 
         View view = null;
 
-        if(contatos != null){
+        if (contatos != null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.lista_contato, parent, false);
             TextView nomeContato = view.findViewById(R.id.tv_nome);

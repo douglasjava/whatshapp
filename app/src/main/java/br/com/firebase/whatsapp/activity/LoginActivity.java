@@ -1,5 +1,7 @@
 package br.com.firebase.whatsapp.activity;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,16 +28,14 @@ import br.com.firebase.whatsapp.R;
 import br.com.firebase.whatsapp.beans.Usuario;
 import br.com.firebase.whatsapp.exceptions.CampoVazioException;
 import br.com.firebase.whatsapp.exceptions.ConexaoException;
-import br.com.firebase.whatsapp.exceptions.ValidarUsuarioException;
 import br.com.firebase.whatsapp.utils.Childs;
-import br.com.firebase.whatsapp.utils.Convert64Base;
 
 import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getAutenticacao;
 import static br.com.firebase.whatsapp.config.ConfiguracaoFirebase.getFirebase;
 import static br.com.firebase.whatsapp.utils.Convert64Base.decode;
 import static br.com.firebase.whatsapp.utils.Convert64Base.encode;
-import static br.com.firebase.whatsapp.utils.Utils.salvarUsuarioLogado;
 import static br.com.firebase.whatsapp.utils.Utils.getTextView;
+import static br.com.firebase.whatsapp.utils.Utils.salvarUsuarioLogado;
 import static br.com.firebase.whatsapp.utils.Utils.validaPermissoes;
 import static br.com.firebase.whatsapp.utils.Utils.validarCampoPreenchido;
 import static br.com.firebase.whatsapp.utils.Utils.verificarConexao;
@@ -49,6 +49,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth auth;
     private DatabaseReference database;
     private ValueEventListener valueEventListenerLogin;
+    private Dialog load;
 
 
     @Override
@@ -76,77 +77,32 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.btnlogar:
                 try {
-                    //TODO criar AsyncTask para logar
                     verificarConexao(context());
                     validarCampoPreenchido(getTextView(email), getTextView(senha));
                     usuario = new Usuario(getTextView(email), getTextView(senha));
-                    validarLogin();
+                    this.auth = getAutenticacao();
+                    auth.signInWithEmailAndPassword(usuario.getEmail(), usuario.getSenha())
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        getNomeUsuario(decode(usuario.getEmail()));
+                                        openWindowMain();
+                                        Toast.makeText(context(), "Usuário logado com sucesso!", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    } else {
+                                        tratamentoExcecaoLogar(task);
+                                    }
+                                }
+                            });
                 } catch (CampoVazioException e) {
-                    Toast.makeText(context(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                } catch (ValidarUsuarioException e) {
                     Toast.makeText(context(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 } catch (ConexaoException e) {
                     Toast.makeText(context(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(context(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
         }
-    }
-
-    private void verificarUsuarioLogado() {
-        auth = getAutenticacao();
-        if (auth.getCurrentUser() != null) {
-            usuario = new Usuario(auth.getCurrentUser().getEmail());
-            getNomeUsuario(encode(usuario.getEmail()));
-            openWindowMain();
-        }
-    }
-
-    private void getNomeUsuario(String idUsuario){
-        database = getFirebase().child(Childs.CHILD_USUARIOS).child(idUsuario);
-        database.addListenerForSingleValueEvent(getValueEventListenerLogin());
-    }
-
-    private ValueEventListener getValueEventListenerLogin(){
-       return valueEventListenerLogin = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Usuario usuario = dataSnapshot.getValue(Usuario.class);
-                salvarUsuarioLogado(context(), usuario);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-    }
-
-    private void validarLogin() throws ValidarUsuarioException {
-
-        try {
-            auth = getAutenticacao();
-            auth.signInWithEmailAndPassword(usuario.getEmail(), usuario.getSenha())
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                getNomeUsuario(decode(usuario.getEmail()));
-                                openWindowMain();
-                                Toast.makeText(context(), "Usuário logado com sucesso!", Toast.LENGTH_SHORT).show();
-                                finish();
-                            } else {
-                                tratamentoExcecaoLogar(task);
-                            }
-                        }
-                    });
-
-        } catch (Exception e) {
-            Log.e("ERRO_LOGAR", e.getMessage());
-            throw new ValidarUsuarioException("Falha ao validar usuário");
-        }
-    }
-
-    private void openWindowMain() {
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
     }
 
 
@@ -163,8 +119,39 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             ex = "Erro ao logar, favor entrar em contato com o suporte";
             Log.e("ERRO_LOGAR", "Falha ao logar com erro: " + e.getMessage());
         }
+    }
 
-        Toast.makeText(context(), ex, Toast.LENGTH_LONG).show();
+    private void verificarUsuarioLogado() {
+        auth = getAutenticacao();
+        if (auth.getCurrentUser() != null) {
+            usuario = new Usuario(auth.getCurrentUser().getEmail());
+            getNomeUsuario(encode(usuario.getEmail()));
+            openWindowMain();
+        }
+    }
+
+    private void getNomeUsuario(String idUsuario) {
+        database = getFirebase().child(Childs.CHILD_USUARIOS).child(idUsuario);
+        database.addListenerForSingleValueEvent(getValueEventListenerLogin());
+    }
+
+    private ValueEventListener getValueEventListenerLogin() {
+        return valueEventListenerLogin = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Usuario usuario = dataSnapshot.getValue(Usuario.class);
+                salvarUsuarioLogado(context(), usuario);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
+    private void openWindowMain() {
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
     }
 
     public void abrirCadastroUsuario(View view) {
